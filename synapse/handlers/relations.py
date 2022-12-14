@@ -122,7 +122,10 @@ class RelationsHandler:
         # Note that ignored users are not passed into get_relations_for_event
         # below. Ignored users are handled in filter_events_for_client (and by
         # not passing them in here we should get a better cache hit rate).
-        related_events, next_token = await self._main_store.get_relations_for_event(
+        (
+            related_events,
+            next_token,
+        ) = await self._main_store.relations.get_relations_for_event(
             event_id=event_id,
             event=event,
             room_id=room_id,
@@ -201,7 +204,7 @@ class RelationsHandler:
             ShadowBanError if the requester is shadow-banned
         """
         related_event_ids = (
-            await self._main_store.get_all_relations_for_event_with_types(
+            await self._main_store.relations.get_all_relations_for_event_with_types(
                 event_id, relation_types
             )
         )
@@ -245,8 +248,10 @@ class RelationsHandler:
             Each entry is a dict with `type`, `key` and `count` fields.
         """
         # Get the base results for all users.
-        full_results = await self._main_store.get_aggregation_groups_for_events(
-            event_ids
+        full_results = (
+            await self._main_store.relations.get_aggregation_groups_for_events(
+                event_ids
+            )
         )
 
         # Avoid additional logic if there are no ignored users.
@@ -258,9 +263,11 @@ class RelationsHandler:
             }
 
         # Then subtract off the results for any ignored users.
-        ignored_results = await self._main_store.get_aggregation_groups_for_users(
-            [event_id for event_id, results in full_results.items() if results],
-            ignored_users,
+        ignored_results = (
+            await self._main_store.relations.get_aggregation_groups_for_users(
+                [event_id for event_id, results in full_results.items() if results],
+                ignored_users,
+            )
         )
 
         filtered_results = {}
@@ -301,7 +308,9 @@ class RelationsHandler:
             A map of event IDs to a list related events.
         """
 
-        related_events = await self._main_store.get_references_for_events(event_ids)
+        related_events = await self._main_store.relations.get_references_for_events(
+            event_ids
+        )
 
         # Avoid additional logic if there are no ignored users.
         if not ignored_users:
@@ -355,7 +364,7 @@ class RelationsHandler:
         event_ids = [eid for eid in events_by_id.keys() if eid not in relations_by_id]
 
         # Fetch thread summaries.
-        summaries = await self._main_store.get_thread_summaries(event_ids)
+        summaries = await self._main_store.relations.get_thread_summaries(event_ids)
 
         # Limit fetching whether the requester has participated in a thread to
         # events which are thread roots.
@@ -371,7 +380,7 @@ class RelationsHandler:
         # For events the requester did not send, check the database for whether
         # the requester sent a threaded reply.
         participated.update(
-            await self._main_store.get_threads_participated(
+            await self._main_store.relations.get_threads_participated(
                 [
                     event_id
                     for event_id in thread_event_ids
@@ -382,8 +391,10 @@ class RelationsHandler:
         )
 
         # Then subtract off the results for any ignored users.
-        ignored_results = await self._main_store.get_threaded_messages_per_user(
-            thread_event_ids, ignored_users
+        ignored_results = (
+            await self._main_store.relations.get_threaded_messages_per_user(
+                thread_event_ids, ignored_users
+            )
         )
 
         # A map of event ID to the thread aggregation.
@@ -412,7 +423,10 @@ class RelationsHandler:
                     continue
 
                 # Attempt to find another event to use as the latest event.
-                potential_events, _ = await self._main_store.get_relations_for_event(
+                (
+                    potential_events,
+                    _,
+                ) = await self._main_store.relations.get_relations_for_event(
                     event_id, event, room_id, RelationTypes.THREAD, direction="f"
                 )
 
@@ -556,7 +570,7 @@ class RelationsHandler:
             Note that there is no use in limiting edits by ignored users since the
             parent event should be ignored in the first place if the user is ignored.
             """
-            edits = await self._main_store.get_applicable_edits(
+            edits = await self._main_store.relations.get_applicable_edits(
                 [
                     event_id
                     for event_id, event in events_by_id.items()
@@ -612,7 +626,7 @@ class RelationsHandler:
         # Note that ignored users are not passed into get_threads
         # below. Ignored users are handled in filter_events_for_client (and by
         # not passing them in here we should get a better cache hit rate).
-        thread_roots, next_batch = await self._main_store.get_threads(
+        thread_roots, next_batch = await self._main_store.relations.get_threads(
             room_id=room_id, limit=limit, from_token=from_token
         )
 
@@ -624,7 +638,7 @@ class RelationsHandler:
             # For events the requester did not send, check the database for whether
             # the requester sent a threaded reply.
             participated.update(
-                await self._main_store.get_threads_participated(
+                await self._main_store.relations.get_threads_participated(
                     [eid for eid, p in participated.items() if not p],
                     user_id,
                 )
