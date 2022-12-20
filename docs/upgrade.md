@@ -88,6 +88,16 @@ process, for example:
     dpkg -i matrix-synapse-py3_1.3.0+stretch1_amd64.deb
     ```
 
+# Upgrading to v1.75.0
+
+## Deprecate the `/_synapse/admin/v1/media/<server_name>/delete` admin API
+
+Synapse v1.75.0 replaces the `/_synapse/admin/v1/media/<server_name>/delete`
+admin API with an identical endpoint at `/_synapse/admin/v1/media/delete`. Please
+update your tooling to use the new endpoint. The deprecated version will be removed
+in a future release.
+
+
 # Upgrading to v1.74.0
 
 ## Unicode support in user search
@@ -103,6 +113,7 @@ and then do `pip install matrix-synapse[icu]` for a PyPI install.
 
 Docker images and Debian packages need nothing specific as they already
 include or specify ICU as an explicit dependency.
+
 
 # Upgrading to v1.73.0
 
