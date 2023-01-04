@@ -53,6 +53,11 @@ can find many good git tutorials on the web.
 
 # 4. Install the dependencies
 
+> If you have [nix](https://github.com/NixOS/nix) installed, you can set up a Synapse
+> development environment in one command (supported on Linux and MacOS)! See the
+> [Nix-Powered Development Environment](nix_powered_development_environment.md) page
+> for more details.
+
 Synapse uses the [poetry](https://python-poetry.org/) project to manage its dependencies
 and development environment. Once you have installed Python 3 and added the
 source, you should install `poetry`.

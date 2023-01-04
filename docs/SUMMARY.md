@@ -92,6 +92,7 @@
   - [Database Schemas](development/database_schema.md)
   - [Experimental features](development/experimental_features.md)
   - [Dependency management](development/dependencies.md)
+  - [Nix-Powered Development Environment](development/nix_powered_development_environment.md)
   - [Synapse Architecture]()
     - [Cancellation](development/synapse_architecture/cancellation.md)
     - [Log Contexts](log_contexts.md)
