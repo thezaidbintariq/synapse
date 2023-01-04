@@ -1,0 +1,10 @@
+inputs:
+  nixpkgs:
+    url: github:NixOS/nixpkgs/nixpkgs-unstable
+  nixpkgs-anoadragon453:
+    url: github:anoadragon453/nixpkgs/anoa/init_perl_netasynchttpserver
+  fenix:
+    url: github:nix-community/fenix
+    inputs:
+      nixpkgs:
+        follows: nixpkgs
