@@ -342,8 +342,21 @@ class BulkPushRuleEvaluator:
             for user_id, level in notification_levels.items():
                 notification_levels[user_id] = int(level)
 
+        # Pull out the mentions field if it exists and trim the values to things
+        # that might be valid.
+        mentions_raw = event.content.get("mentions")
+        if isinstance(mentions_raw, list):
+            # Take the first 10 items, then strip out any non-string ones and convert
+            # to a tuple.
+            mentions = set(
+                filter(lambda item: isinstance(item, str), mentions_raw[:10])
+            )
+        else:
+            mentions = set()
+
         evaluator = PushRuleEvaluator(
             _flatten_dict(event, room_version=event.room_version),
+            mentions,
             room_member_count,
             sender_power_level,
             notification_levels,
