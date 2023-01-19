@@ -215,7 +215,7 @@ class AccountDataHandler:
 
     async def remove_account_data_for_user(
         self, user_id: str, account_data_type: str
-    ) -> Optional[int]:
+    ) -> int:
         """Removes a piece of global account_data for a user.
 
         Args:
@@ -232,7 +232,8 @@ class AccountDataHandler:
             )
             if max_stream_id is None:
                 # The referenced account data did not exist, so no delete occurred.
-                return None
+                # We just return the current stream ID of the account data stream.
+                return self._store.get_max_account_data_stream_id()
 
             self._notifier.on_new_event(
                 StreamKeyType.ACCOUNT_DATA, max_stream_id, users=[user_id]

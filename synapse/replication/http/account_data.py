@@ -76,15 +76,20 @@ class ReplicationRemoveUserAccountDataRestServlet(ReplicationEndpoint):
 
         POST /_synapse/replication/remove_user_account_data/:user_id/:type
 
-        {
-            "content": { ... },
-        }
+        {}
 
     """
 
     NAME = "remove_user_account_data"
     PATH_ARGS = ("user_id", "account_data_type")
     CACHE = False
+
+    # In the case of attempting to remove account data that doesn't exist,
+    # the account data stream will not be incremented by the handler of this
+    # replication endpoint. Therefore, we don't wait for the account data
+    # stream to update after issuing this replication request. Even with this
+    # off, callers will still wait for a response to the request.
+    WAIT_FOR_STREAMS = False
 
     def __init__(self, hs: "HomeServer"):
         super().__init__(hs)
